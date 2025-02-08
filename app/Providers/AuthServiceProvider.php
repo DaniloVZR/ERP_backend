@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use App\Http\Services\AuthService;
-use App\Interfaces\AuthInterface;
+use App\Interfaces\AuthServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -13,7 +13,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(AuthInterface::class, AuthService::class);
+        $this->app->bind(AuthServiceInterface::class, AuthService::class);
     }
 
     /**

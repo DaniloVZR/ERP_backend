@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
-use App\Interfaces\AuthInterface;
+use App\Http\Requests\RegisterRequest;
+use App\Interfaces\AuthServiceInterface;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
     public function __construct(
-        private AuthInterface $authService
+        protected AuthServiceInterface $authService
     ) {}
 
     public function login(LoginRequest $request)
@@ -18,20 +20,64 @@ class AuthController extends Controller
             $token = $this->authService->login($request->all());
 
             return response()->json([
-                'data' => $token
+                'success' => true,
+                'data' => $token,
+                'message' => '¡Sesión iniciada!',
+                'errors' => []
             ]);
         } catch (\Throwable $th) {
             return response()->json([
-                'mensaje' => 'Ha ocurrido un error al consultar el usuario',
-                'data' => $th->getMessage(),
-            ], 404);
+                'success' => false,
+                'data' => null,
+                'message' => 'Ha ocurrido un error al intentar iniciar sesión',
+                'errors' => [
+                    'message' => $th->getMessage(),
+                    'code' => $th->getCode(),
+                ]
+            ], Response::HTTP_NOT_FOUND);
+        }
+    }
+
+    public function register(RegisterRequest $request)
+    {
+        try {
+            $token = $this->authService->register($request->all());
+
+            return response()->json([
+                'success' => true,
+                'data' => $token,
+                'message' => '¡Sesión iniciada!',
+                'errors' => []
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'message' => 'Ha ocurrido un error al intentar registrar',
+                'errors' => [
+                    'message' => $th->getMessage(),
+                    'code' => $th->getCode(),
+                ]
+            ], Response::HTTP_NOT_FOUND);
         }
     }
 
     public function logout(Request $request)
     {
-        $this->authService->logout($request);
+        try {
+            $this->authService->logout($request);
 
-        return response()->noContent();
+            return response()->noContent();
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'message' => 'Ha ocurrido un error al intentar cerrar sesión',
+                'errors' => [
+                    'message' => $th->getMessage(),
+                    'code' => $th->getCode(),
+                ]
+            ], Response::HTTP_NOT_FOUND);
+        }
     }
 }
