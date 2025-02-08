@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -9,15 +10,10 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         try {
-            $requestValidated = $request->validate([
-                'email' => 'required|exists:users,email|email',
-                'password' => 'required'
-            ]);
-
-            $user = User::where('email', $requestValidated['email'])->firstOrFail();
+            $user = User::where('email', $request['email'])->firstOrFail();
 
             if (!Hash::check($request->password, $user->password)) {
                 throw ValidationException::withMessages([
