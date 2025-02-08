@@ -25,8 +25,14 @@ class AuthController extends Controller
                 ]);
             }
 
+            $token = $user->createToken(
+                'token-name',
+                ['*'],
+                now()->addWeek()
+            )->plainTextToken;
+
             return response()->json([
-                'token' => $user->createToken('token-name', ['server:update'])->plainTextToken
+                'data' => $token
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -34,5 +40,12 @@ class AuthController extends Controller
                 'data' => $th->getMessage(),
             ], 404);
         }
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->noContent();
     }
 }
