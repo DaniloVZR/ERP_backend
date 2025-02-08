@@ -14,7 +14,11 @@ class AuthService implements AuthServiceInterface
     {
         $user = User::create($credentials);
 
-        $token = $user->createToken($credentials['name']);
+        $token = $user->createToken(
+            $credentials['name'],
+            ['*'],
+            now()->addWeek()
+        )->plainTextToken;
 
         return $token;
     }
